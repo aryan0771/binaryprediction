@@ -1,0 +1,25 @@
+import { MetadataRoute } from 'next';
+
+export default function manifest(): MetadataRoute.Manifest {
+  return {
+    name: 'Prediction Markets Platform',
+    short_name: 'Predictify',
+    description: 'Enterprise-grade prediction market platform.',
+    start_url: '/',
+    display: 'standalone',
+    background_color: '#020817', // matching Tailwind background
+    theme_color: '#020817',
+    icons: [
+      {
+        src: '/icon-192x192.png',
+        sizes: '192x192',
+        type: 'image/png',
+      },
+      {
+        src: '/icon-512x512.png',
+        sizes: '512x512',
+        type: 'image/png',
+      },
+    ],
+  };
+}

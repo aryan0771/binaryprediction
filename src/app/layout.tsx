@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
@@ -23,6 +23,10 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 export const metadata: Metadata = {
   title: "Prediction Markets Platform",
   description: "Enterprise-grade prediction market platform.",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#020817",
 };
 
 export default async function RootLayout({
@@ -100,6 +104,18 @@ export default async function RootLayout({
             </main>
           </div>
           <Toaster />
+          <script dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').then(
+                    function(registration) { console.log('Service Worker registered with scope: ', registration.scope); },
+                    function(err) { console.log('Service Worker registration failed: ', err); }
+                  );
+                });
+              }
+            `
+          }} />
         </Providers>
       </body>
     </html>
