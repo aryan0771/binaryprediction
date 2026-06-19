@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { placeBetAction } from '@/actions/market';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 export default function MarketCard({ market, isLoggedIn }: { market: any, isLoggedIn: boolean }) {
   const options = market.options || ['YES', 'NO'];
@@ -19,6 +19,9 @@ export default function MarketCard({ market, isLoggedIn }: { market: any, isLogg
   const [isOpen, setIsOpen] = useState(false);
   const queryClient = useQueryClient();
   const router = useRouter();
+  const pathname = usePathname();
+
+  const isDetailPage = pathname === `/dashboard/market/${market.id}` || pathname === `/admin/markets/${market.id}`;
 
   const poolData = market.pool?.poolData || {};
   const totalPool = Object.values(poolData).reduce((sum: number, val: any) => sum + (val as number), 0);
@@ -37,7 +40,7 @@ export default function MarketCard({ market, isLoggedIn }: { market: any, isLogg
   const prospectivePoolData = { ...poolData };
   prospectivePoolData[selectedOption] = (prospectivePoolData[selectedOption] || 0) + parsedBetAmount;
   const prospectiveTotalPool = totalPool + parsedBetAmount;
-  
+
   const prospectiveOptionPool = prospectivePoolData[selectedOption] || 0;
   const prospectiveSafePool = prospectiveOptionPool === 0 ? 1 : prospectiveOptionPool;
   const prospectiveLosingPool = prospectiveTotalPool - prospectiveOptionPool;
@@ -114,7 +117,7 @@ export default function MarketCard({ market, isLoggedIn }: { market: any, isLogg
                 {/* Background glow */}
                 <div className="absolute -top-20 -right-20 w-60 h-60 bg-blue-500/20 rounded-full blur-[100px] pointer-events-none" />
                 <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-purple-500/20 rounded-full blur-[100px] pointer-events-none" />
-                
+
                 <DialogHeader className="relative z-10">
                   <DialogTitle className="text-2xl font-bold tracking-tight">Place Prediction</DialogTitle>
                   <DialogDescription>
@@ -141,12 +144,12 @@ export default function MarketCard({ market, isLoggedIn }: { market: any, isLogg
                   </div>
                   <div className="space-y-2 relative z-10">
                     <Label htmlFor="betAmount" className="text-muted-foreground font-semibold">Amount to Wager (♦)</Label>
-                    <Input 
-                      id="betAmount" 
-                      type="number" 
-                      value={betAmount} 
-                      onChange={(e) => setBetAmount(e.target.value)} 
-                      placeholder="e.g. 100" 
+                    <Input
+                      id="betAmount"
+                      type="number"
+                      value={betAmount}
+                      onChange={(e) => setBetAmount(e.target.value)}
+                      placeholder="e.g. 100"
                       min={1}
                       className="text-lg bg-background/50 h-12 font-mono shadow-inner border-border/50 focus-visible:ring-primary/50"
                     />
@@ -161,10 +164,12 @@ export default function MarketCard({ market, isLoggedIn }: { market: any, isLogg
               </DialogContent>
             </Dialog>
           )}
-          
-          <a href={`/dashboard/market/${market.id}`} className="w-full">
-            <Button variant="outline" className="w-full">View Details</Button>
-          </a>
+
+          {!isDetailPage && (
+            <a href={`/dashboard/market/${market.id}`} className="w-full">
+              <Button variant="outline" className="w-full">View Details</Button>
+            </a>
+          )}
         </div>
       </CardContent>
     </Card>

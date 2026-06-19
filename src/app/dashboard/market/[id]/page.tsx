@@ -43,13 +43,13 @@ export default async function MarketDetailPage({ params }: { params: Promise<{ i
           <MarketCard market={marketWithPool} isLoggedIn={true} />
         </div>
 
-        <div className="lg:col-span-2">
-          <Card>
+        <div className="lg:col-span-2 min-w-0">
+          <Card className="overflow-hidden">
             <CardHeader>
               <CardTitle>All Predictions</CardTitle>
               <CardDescription>Real-time view of everyone's bets on this market.</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>

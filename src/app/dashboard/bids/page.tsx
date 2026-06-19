@@ -20,12 +20,12 @@ export default async function BidHistoryPage() {
     <div className="container mx-auto p-4 md:p-8 max-w-5xl flex flex-col gap-8">
       <h1 className="text-3xl font-bold tracking-tight">Bid History</h1>
 
-      <Card>
+      <Card className="overflow-hidden">
         <CardHeader>
           <CardTitle>All Placed Bets</CardTitle>
           <CardDescription>A comprehensive history of every prediction you've made.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
