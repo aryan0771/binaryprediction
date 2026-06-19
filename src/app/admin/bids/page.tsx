@@ -182,12 +182,20 @@ export default async function AdminBidsPage({ searchParams }: { searchParams: Pr
                 Showing page {currentPage} of {totalPages} ({totalBetsCount} total bids)
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" disabled={currentPage <= 1} asChild={currentPage > 1}>
-                  {currentPage > 1 ? <Link href={`/admin/bids?page=${currentPage - 1}`}>Previous</Link> : <span>Previous</span>}
-                </Button>
-                <Button variant="outline" disabled={currentPage >= totalPages} asChild={currentPage < totalPages}>
-                  {currentPage < totalPages ? <Link href={`/admin/bids?page=${currentPage + 1}`}>Next</Link> : <span>Next</span>}
-                </Button>
+                {currentPage > 1 ? (
+                  <Link href={`/admin/bids?page=${currentPage - 1}`}>
+                    <Button variant="outline">Previous</Button>
+                  </Link>
+                ) : (
+                  <Button variant="outline" disabled>Previous</Button>
+                )}
+                {currentPage < totalPages ? (
+                  <Link href={`/admin/bids?page=${currentPage + 1}`}>
+                    <Button variant="outline">Next</Button>
+                  </Link>
+                ) : (
+                  <Button variant="outline" disabled>Next</Button>
+                )}
               </div>
             </div>
           )}

@@ -21,7 +21,7 @@ export default function MarketCard({ market, isLoggedIn }: { market: any, isLogg
   const router = useRouter();
 
   const poolData = market.pool?.poolData || {};
-  const totalPool = Object.values(poolData).reduce((sum, val) => sum + (val as number), 0);
+  const totalPool = Object.values(poolData).reduce((sum: number, val: any) => sum + (val as number), 0);
 
   const multipliers = options.map((opt: string) => {
     const pool = poolData[opt] || 0;
