@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { createMarketAction, closeMarketAction, settleMarketAction } from '@/actions/market';
 import { toast } from 'sonner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import Link from 'next/link';
 
 export default function AdminClient({ markets, auditLogs }: { markets: any[], auditLogs: any[] }) {
   const [isPending, setIsPending] = useState(false);
@@ -90,7 +91,11 @@ export default function AdminClient({ markets, auditLogs }: { markets: any[], au
               <TableBody>
                 {markets.map(market => (
                   <TableRow key={market.id}>
-                    <TableCell className="font-medium max-w-[200px] truncate" title={market.question}>{market.question}</TableCell>
+                    <TableCell className="font-medium max-w-[200px] truncate" title={market.question}>
+                      <Link href={`/admin/markets/${market.id}`} className="hover:underline text-blue-600 dark:text-blue-400">
+                        {market.question}
+                      </Link>
+                    </TableCell>
                     <TableCell>{market.status}</TableCell>
                     <TableCell>
                       {market.status === 'OPEN' && (

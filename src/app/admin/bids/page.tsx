@@ -26,8 +26,17 @@ export default async function AdminBidsPage() {
     .orderBy(desc(bets.createdAt));
 
   // Calculate total platform commission earned
-  const totalCommissionResult = await db.select({ total: sql<number>`SUM(amount)` }).from(commissionLogs);
-  const totalCommission = totalCommissionResult[0]?.total || 0;
+  const allCommissionLogs = await db.select().from(commissionLogs);
+  const totalCommission = allCommissionLogs.reduce((sum, log) => sum + log.amount, 0);
+
+  // Calculate Revenue By Market
+  const allMarkets = await db.select().from(markets).orderBy(desc(markets.createdAt));
+  const revenueByMarket = allMarkets.map(m => {
+    const marketBets = allBets.filter(b => b.bet.marketId === m.id);
+    const totalPool = marketBets.reduce((sum, b) => sum + b.bet.diamonds, 0);
+    const adminEarnings = allCommissionLogs.filter(c => c.marketId === m.id).reduce((sum, c) => sum + c.amount, 0);
+    return { market: m, totalPool, adminEarnings };
+  }).filter(m => m.totalPool > 0);
 
   return (
     <div className="flex flex-col gap-8">
@@ -46,6 +55,52 @@ export default async function AdminBidsPage() {
           </CardContent>
         </Card>
       </section>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Revenue by Market</CardTitle>
+          <CardDescription>Breakdown of betting pools and admin earnings per market.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Market</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Total Pool</TableHead>
+                <TableHead className="text-right">Admin Earnings</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {revenueByMarket.map(({ market, totalPool, adminEarnings }) => (
+                <TableRow key={market.id}>
+                  <TableCell className="font-medium max-w-[200px] truncate" title={market.question}>
+                    {market.question}
+                  </TableCell>
+                  <TableCell>
+                    <span className="px-2 py-1 bg-muted rounded-md text-xs font-semibold">{market.category}</span>
+                  </TableCell>
+                  <TableCell>{market.status}</TableCell>
+                  <TableCell className="text-right font-mono text-blue-500 font-bold">
+                    ♦ {totalPool.toLocaleString()}
+                  </TableCell>
+                  <TableCell className="text-right font-mono text-green-500 font-bold">
+                    ♦ {adminEarnings.toLocaleString()}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {revenueByMarket.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                    No betting activity found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
