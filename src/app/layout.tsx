@@ -16,7 +16,7 @@ import {
   DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { User, List, Wallet, LogOut, Settings } from "lucide-react";
+import { User, List, Wallet, LogOut, Settings, Home, LayoutDashboard } from "lucide-react";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -63,6 +63,20 @@ export default async function RootLayout({
                             <DropdownMenuLabel>My Account</DropdownMenuLabel>
                           </DropdownMenuGroup>
                           <DropdownMenuSeparator />
+                          {session.user?.role === 'ADMIN' && (
+                            <DropdownMenuItem>
+                              <a href="/admin" className="cursor-pointer flex items-center w-full text-green-500 font-medium">
+                                <Settings className="mr-2 h-4 w-4" />
+                                <span>Admin Panel</span>
+                              </a>
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem className="sm:hidden">
+                            <a href="/dashboard" className="cursor-pointer flex items-center w-full font-medium">
+                              <Home className="mr-2 h-4 w-4" />
+                              <span>Dashboard</span>
+                            </a>
+                          </DropdownMenuItem>
                           <DropdownMenuItem>
                             <a href="/dashboard/profile" className="cursor-pointer flex items-center w-full">
                               <Settings className="mr-2 h-4 w-4" />
