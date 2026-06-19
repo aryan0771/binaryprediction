@@ -5,15 +5,27 @@ import { bets, users, markets, commissionLogs } from "@/db/schema";
 import { desc, eq, sql } from "drizzle-orm";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
-export default async function AdminBidsPage() {
+export default async function AdminBidsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
   const session = await auth();
   
   if (session?.user?.role !== 'ADMIN') {
     redirect('/');
   }
 
-  // Fetch all bets with user and market info
+  // Pagination logic
+  const { page } = await searchParams;
+  const currentPage = parseInt(page || '1') || 1;
+  const itemsPerPage = 20;
+  const offset = (currentPage - 1) * itemsPerPage;
+
+  const totalBetsRes = await db.select({ count: sql<number>`count(*)` }).from(bets);
+  const totalBetsCount = totalBetsRes[0]?.count || 0;
+  const totalPages = Math.ceil(totalBetsCount / itemsPerPage);
+
+  // Fetch paginated bets with user and market info
   const allBets = await db
     .select({
       bet: bets,
@@ -23,7 +35,9 @@ export default async function AdminBidsPage() {
     .from(bets)
     .leftJoin(users, eq(bets.userId, users.id))
     .leftJoin(markets, eq(bets.marketId, markets.id))
-    .orderBy(desc(bets.createdAt));
+    .orderBy(desc(bets.createdAt))
+    .limit(itemsPerPage)
+    .offset(offset);
 
   // Calculate total platform commission earned
   const allCommissionLogs = await db.select().from(commissionLogs);
@@ -160,6 +174,23 @@ export default async function AdminBidsPage() {
               )}
             </TableBody>
           </Table>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex justify-between items-center mt-6">
+              <div className="text-sm text-muted-foreground">
+                Showing page {currentPage} of {totalPages} ({totalBetsCount} total bids)
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" disabled={currentPage <= 1} asChild={currentPage > 1}>
+                  {currentPage > 1 ? <Link href={`/admin/bids?page=${currentPage - 1}`}>Previous</Link> : <span>Previous</span>}
+                </Button>
+                <Button variant="outline" disabled={currentPage >= totalPages} asChild={currentPage < totalPages}>
+                  {currentPage < totalPages ? <Link href={`/admin/bids?page=${currentPage + 1}`}>Next</Link> : <span>Next</span>}
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

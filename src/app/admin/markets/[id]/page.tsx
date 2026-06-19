@@ -8,11 +8,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-export default async function AdminMarketDetailsPage({ params }: { params: { id: string } }) {
+export default async function AdminMarketDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (session?.user?.role !== 'ADMIN') redirect('/');
 
-  const marketId = parseInt(params.id);
+  const { id } = await params;
+  const marketId = parseInt(id);
   if (isNaN(marketId)) redirect('/admin/markets');
 
   // Fetch Market

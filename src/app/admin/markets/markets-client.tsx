@@ -8,10 +8,12 @@ import { Label } from "@/components/ui/label";
 import { createMarketAction, closeMarketAction, settleMarketAction } from '@/actions/market';
 import { toast } from 'sonner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import Link from 'next/link';
 
 export default function AdminClient({ markets, auditLogs }: { markets: any[], auditLogs: any[] }) {
   const [isPending, setIsPending] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   async function handleCreateMarket(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -26,6 +28,7 @@ export default function AdminClient({ markets, auditLogs }: { markets: any[], au
     if (res.success) {
       toast.success('Market created successfully');
       (e.target as HTMLFormElement).reset();
+      setIsCreateOpen(false);
     } else {
       toast.error(res.error);
     }
@@ -46,11 +49,13 @@ export default function AdminClient({ markets, auditLogs }: { markets: any[], au
   return (
     <div className="grid gap-8">
       <div className="space-y-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Create New Market</CardTitle>
-          </CardHeader>
-          <CardContent>
+        
+        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New Market</DialogTitle>
+              <DialogDescription>Define a new prediction market question and its options.</DialogDescription>
+            </DialogHeader>
             <form onSubmit={handleCreateMarket} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="question">Market Question</Label>
@@ -70,14 +75,17 @@ export default function AdminClient({ markets, auditLogs }: { markets: any[], au
                   <Input id="optionB" name="optionB" placeholder="NO" defaultValue="NO" />
                 </div>
               </div>
-              <Button type="submit" disabled={isPending}>Create Market</Button>
+              <Button type="submit" className="w-full" disabled={isPending}>Create Market</Button>
             </form>
-          </CardContent>
-        </Card>
+          </DialogContent>
+        </Dialog>
 
         <Card>
           <CardHeader>
-            <CardTitle>Recent Markets</CardTitle>
+            <div className="flex justify-between items-center">
+              <CardTitle>Recent Markets</CardTitle>
+              <Button onClick={() => setIsCreateOpen(true)}>+ Create Market</Button>
+            </div>
           </CardHeader>
           <CardContent>
             <Table>
