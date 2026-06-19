@@ -26,6 +26,14 @@ export default function MarketCard({ market, isLoggedIn }: { market: any, isLogg
   const yesMult = yesPool === 0 && noPool === 0 ? 1.8 : Math.max(1.0, (yesPool + (noPool * 0.8)) / (yesPool || 1));
   const noMult = yesPool === 0 && noPool === 0 ? 1.8 : Math.max(1.0, (noPool + (yesPool * 0.8)) / (noPool || 1));
 
+  // Dynamic Multiplier Calculation
+  const parsedBetAmount = parseFloat(betAmount || '0');
+  const prospectiveYesPool = selectedOption === 'YES' ? yesPool + parsedBetAmount : yesPool;
+  const prospectiveNoPool = selectedOption === 'NO' ? noPool + parsedBetAmount : noPool;
+  const prospectiveYesMult = prospectiveYesPool === 0 && prospectiveNoPool === 0 ? 1.8 : Math.max(1.0, (prospectiveYesPool + (prospectiveNoPool * 0.8)) / (prospectiveYesPool || 1));
+  const prospectiveNoMult = prospectiveYesPool === 0 && prospectiveNoPool === 0 ? 1.8 : Math.max(1.0, (prospectiveNoPool + (prospectiveYesPool * 0.8)) / (prospectiveNoPool || 1));
+  const prospectiveMult = selectedOption === 'YES' ? prospectiveYesMult : prospectiveNoMult;
+
   async function handleBet() {
     setIsPending(true);
     const amount = parseInt(betAmount);
@@ -91,9 +99,16 @@ export default function MarketCard({ market, isLoggedIn }: { market: any, isLogg
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
-                  <div className="flex justify-between text-sm font-medium">
-                    <span>Selected: <span className={selectedOption === 'YES' ? 'text-green-500' : 'text-red-500'}>{selectedOption === 'YES' ? market.optionA || 'YES' : market.optionB || 'NO'}</span></span>
-                    <span>Potential Payout: <span className="text-blue-500">♦ {(parseFloat(betAmount || '0') * (selectedOption === 'YES' ? yesMult : noMult)).toFixed(0)}</span></span>
+                  <div className="flex flex-col gap-1 text-sm font-medium">
+                    <div className="flex justify-between">
+                      <span>Selected: <span className={selectedOption === 'YES' ? 'text-green-500' : 'text-red-500'}>{selectedOption === 'YES' ? market.optionA || 'YES' : market.optionB || 'NO'}</span></span>
+                      <span>Potential Payout: <span className="text-blue-500">♦ {(parsedBetAmount * prospectiveMult).toFixed(0)}</span></span>
+                    </div>
+                    {parsedBetAmount > 0 && (
+                      <div className="text-right text-xs text-muted-foreground">
+                        Pool multiplier adjusts to {prospectiveMult.toFixed(2)}x
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="betAmount">Amount (♦)</Label>
