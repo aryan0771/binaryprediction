@@ -37,19 +37,16 @@ export default async function RootLayout({
         <Providers>
           <div className="min-h-screen flex flex-col">
             <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <div className="container flex h-14 items-center justify-between">
+              <div className="container flex h-16 sm:h-20 items-center justify-between">
                 <a href={session ? "/dashboard" : "/"} className="flex items-center gap-2 ml-2 hover:opacity-80 transition-opacity">
-                  <Image src="/logo.png" alt="Predictify Logo" width={48} height={48} className="object-contain w-10 h-10 sm:w-8 sm:h-8" />
-                  <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-blue-500 to-teal-400 bg-clip-text text-transparent hidden sm:inline-block">
-                    Predictify
-                  </span>
+                  <Image src="/logo.png" alt="Predictify Logo" width={800} height={300} className="object-contain w-40 h-auto sm:w-56" priority />
                 </a>
                 <nav className="flex items-center gap-4">
                   {session ? (
                     <>
                       <a href="/dashboard" className="text-sm font-medium hover:text-blue-400 transition-colors mr-2 hidden sm:block">Dashboard</a>
                       <DropdownMenu>
-                        <DropdownMenuTrigger className="focus:outline-none">
+                        <DropdownMenuTrigger className="focus:outline-none mr-4">
                           <Avatar className="h-8 w-8 bg-blue-600/20 text-blue-500 hover:bg-blue-600/30 transition-colors">
                             <AvatarFallback>
                               <User className="h-4 w-4" />

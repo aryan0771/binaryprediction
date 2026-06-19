@@ -3,10 +3,11 @@ import { markets, marketPools, auditLogs } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
 export class MarketService {
-  static async createMarket(adminId: number, question: string) {
+  static async createMarket(adminId: number, question: string, category: string = 'GENERAL') {
     return db.transaction(async (tx) => {
       const [newMarket] = await tx.insert(markets).values({
         question,
+        category,
         status: 'OPEN',
       }).returning();
 

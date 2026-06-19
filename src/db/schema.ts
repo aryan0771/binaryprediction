@@ -15,6 +15,7 @@ export const users = pgTable('users', {
 export const markets = pgTable('markets', {
   id: serial('id').primaryKey(),
   question: text('question').notNull(),
+  category: text('category').notNull().default('GENERAL'),
   status: text('status').notNull().default('OPEN'), // 'OPEN' | 'CLOSED' | 'SETTLED'
   winningOption: text('winning_option'), // 'YES' | 'NO' | null
   createdAt: timestamp('created_at').notNull().defaultNow(),

@@ -1,0 +1,1 @@
+ALTER TABLE "markets" ADD COLUMN "category" text DEFAULT 'GENERAL' NOT NULL;

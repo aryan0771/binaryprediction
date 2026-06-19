@@ -17,8 +17,9 @@ export default function AdminClient({ markets, auditLogs }: { markets: any[], au
     setIsPending(true);
     const formData = new FormData(e.currentTarget);
     const question = formData.get('question') as string;
+    const category = formData.get('category') as string || 'GENERAL';
     
-    const res = await createMarketAction(question);
+    const res = await createMarketAction(question, category);
     if (res.success) {
       toast.success('Market created successfully');
       (e.target as HTMLFormElement).reset();
@@ -51,6 +52,10 @@ export default function AdminClient({ markets, auditLogs }: { markets: any[], au
               <div className="space-y-2">
                 <Label htmlFor="question">Market Question</Label>
                 <Input id="question" name="question" placeholder="Will X happen?" required />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Input id="category" name="category" placeholder="e.g., Cricket, Finance, Politics" />
               </div>
               <Button type="submit" disabled={isPending}>Create Market</Button>
             </form>
