@@ -58,26 +58,26 @@ export default async function RootLayout({
                             <DropdownMenuLabel>My Account</DropdownMenuLabel>
                           </DropdownMenuGroup>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem asChild>
+                          <DropdownMenuItem>
                             <a href="/dashboard/profile" className="cursor-pointer flex items-center w-full">
                               <Settings className="mr-2 h-4 w-4" />
                               <span>Profile Settings</span>
                             </a>
                           </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
+                          <DropdownMenuItem>
                             <a href="/dashboard/wallet" className="cursor-pointer flex items-center w-full">
                               <Wallet className="mr-2 h-4 w-4" />
                               <span>Wallet Ledger</span>
                             </a>
                           </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
+                          <DropdownMenuItem>
                             <a href="/dashboard/bids" className="cursor-pointer flex items-center w-full">
                               <List className="mr-2 h-4 w-4" />
                               <span>Bid History</span>
                             </a>
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem asChild>
+                          <DropdownMenuItem>
                             <form action="/api/auth/signout" method="POST" className="w-full">
                               <button className="flex items-center w-full text-red-400 cursor-pointer">
                                 <LogOut className="mr-2 h-4 w-4" />
