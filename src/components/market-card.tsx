@@ -26,8 +26,7 @@ export default function MarketCard({ market, isLoggedIn }: { market: any, isLogg
   const yesMult = yesPool === 0 && noPool === 0 ? 1.8 : Math.max(1.0, (yesPool + (noPool * 0.8)) / (yesPool || 1));
   const noMult = yesPool === 0 && noPool === 0 ? 1.8 : Math.max(1.0, (noPool + (yesPool * 0.8)) / (noPool || 1));
 
-  async function handleBet(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleBet() {
     setIsPending(true);
     const amount = parseInt(betAmount);
     if (isNaN(amount) || amount <= 0) {
@@ -38,7 +37,8 @@ export default function MarketCard({ market, isLoggedIn }: { market: any, isLogg
 
     const res = await placeBetAction({ marketId: market.id, option: selectedOption, amount });
     if (res.success) {
-      toast.success(`Bet placed on ${selectedOption} successfully!`);
+      const optionLabel = selectedOption === 'YES' ? market.optionA || 'YES' : market.optionB || 'NO';
+      toast.success(`Bet placed on ${optionLabel} successfully!`);
       queryClient.invalidateQueries({ queryKey: ['markets'] });
       router.refresh();
       setIsOpen(false);
@@ -62,12 +62,12 @@ export default function MarketCard({ market, isLoggedIn }: { market: any, isLogg
       </CardHeader>
       <CardContent className="space-y-4 flex-1">
         <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col items-center p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-            <span className="text-sm font-semibold text-green-500 mb-1">YES</span>
+          <div className="flex flex-col items-center p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-center">
+            <span className="text-sm font-semibold text-green-500 mb-1 leading-tight">{market.optionA || 'YES'}</span>
             <span className="font-mono font-bold text-green-400">{yesMult.toFixed(2)}x</span>
           </div>
-          <div className="flex flex-col items-center p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-            <span className="text-sm font-semibold text-red-500 mb-1">NO</span>
+          <div className="flex flex-col items-center p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-center">
+            <span className="text-sm font-semibold text-red-500 mb-1 leading-tight">{market.optionB || 'NO'}</span>
             <span className="font-mono font-bold text-red-400">{noMult.toFixed(2)}x</span>
           </div>
         </div>
@@ -80,8 +80,8 @@ export default function MarketCard({ market, isLoggedIn }: { market: any, isLogg
           ) : (
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
               <div className="flex gap-2">
-                <Button className="flex-1 bg-green-600 hover:bg-green-700 text-white" onClick={() => { setSelectedOption('YES'); setIsOpen(true); }}>Bet YES</Button>
-                <Button className="flex-1 bg-red-600 hover:bg-red-700 text-white" onClick={() => { setSelectedOption('NO'); setIsOpen(true); }}>Bet NO</Button>
+                <Button className="flex-1 bg-green-600 hover:bg-green-700 text-white" onClick={() => { setSelectedOption('YES'); setIsOpen(true); }}>Bet {market.optionA || 'YES'}</Button>
+                <Button className="flex-1 bg-red-600 hover:bg-red-700 text-white" onClick={() => { setSelectedOption('NO'); setIsOpen(true); }}>Bet {market.optionB || 'NO'}</Button>
               </div>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
@@ -92,7 +92,7 @@ export default function MarketCard({ market, isLoggedIn }: { market: any, isLogg
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="flex justify-between text-sm font-medium">
-                    <span>Selected: <span className={selectedOption === 'YES' ? 'text-green-500' : 'text-red-500'}>{selectedOption}</span></span>
+                    <span>Selected: <span className={selectedOption === 'YES' ? 'text-green-500' : 'text-red-500'}>{selectedOption === 'YES' ? market.optionA || 'YES' : market.optionB || 'NO'}</span></span>
                     <span>Potential Payout: <span className="text-blue-500">♦ {(parseFloat(betAmount || '0') * (selectedOption === 'YES' ? yesMult : noMult)).toFixed(0)}</span></span>
                   </div>
                   <div className="space-y-2">
@@ -109,7 +109,7 @@ export default function MarketCard({ market, isLoggedIn }: { market: any, isLogg
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setIsOpen(false)} disabled={isPending}>Cancel</Button>
-                  <Button onClick={() => handleBet(selectedOption)} disabled={!betAmount || isPending || parseInt(betAmount) <= 0}>
+                  <Button onClick={() => handleBet()} disabled={!betAmount || isPending || parseInt(betAmount) <= 0}>
                     {isPending ? 'Confirming...' : 'Confirm Bet'}
                   </Button>
                 </DialogFooter>

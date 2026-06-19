@@ -35,13 +35,13 @@ export async function placeBetAction(data: { marketId: number, option: 'YES'|'NO
   }
 }
 
-export async function createMarketAction(question: string, category: string) {
+export async function createMarketAction(question: string, category: string, optionA: string, optionB: string) {
   const session = await auth();
   if (session?.user?.role !== 'ADMIN') throw new Error('Unauthorized');
 
   try {
     const adminId = parseInt(session.user.id as string);
-    const result = await MarketService.createMarket(adminId, question, category);
+    const result = await MarketService.createMarket(adminId, question, category, optionA, optionB);
     revalidatePath('/admin');
     revalidatePath('/');
     return { success: true, data: result };

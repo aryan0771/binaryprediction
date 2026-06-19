@@ -69,7 +69,7 @@ export default async function MarketDetailPage({ params }: { params: Promise<{ i
                         </TableCell>
                         <TableCell>
                           <span className={`px-2 py-1 rounded text-xs font-bold ${bet.option === 'YES' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
-                            {bet.option}
+                            {bet.option === 'YES' ? market.optionA || 'YES' : market.optionB || 'NO'}
                           </span>
                         </TableCell>
                         <TableCell className="text-right font-mono text-blue-400">

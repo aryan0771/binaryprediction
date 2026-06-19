@@ -18,8 +18,10 @@ export default function AdminClient({ markets, auditLogs }: { markets: any[], au
     const formData = new FormData(e.currentTarget);
     const question = formData.get('question') as string;
     const category = formData.get('category') as string || 'GENERAL';
+    const optionA = formData.get('optionA') as string || 'YES';
+    const optionB = formData.get('optionB') as string || 'NO';
     
-    const res = await createMarketAction(question, category);
+    const res = await createMarketAction(question, category, optionA, optionB);
     if (res.success) {
       toast.success('Market created successfully');
       (e.target as HTMLFormElement).reset();
@@ -57,6 +59,16 @@ export default function AdminClient({ markets, auditLogs }: { markets: any[], au
                 <Label htmlFor="category">Category</Label>
                 <Input id="category" name="category" placeholder="e.g., Cricket, Finance, Politics" />
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="optionA">Option 1 Label</Label>
+                  <Input id="optionA" name="optionA" placeholder="YES" defaultValue="YES" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="optionB">Option 2 Label</Label>
+                  <Input id="optionB" name="optionB" placeholder="NO" defaultValue="NO" />
+                </div>
+              </div>
               <Button type="submit" disabled={isPending}>Create Market</Button>
             </form>
           </CardContent>
@@ -85,9 +97,9 @@ export default function AdminClient({ markets, auditLogs }: { markets: any[], au
                         <Button size="sm" variant="outline" disabled={isPending} onClick={() => handleAction(closeMarketAction, market.id)}>Close</Button>
                       )}
                       {market.status === 'CLOSED' && (
-                        <div className="flex gap-2">
-                          <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" disabled={isPending} onClick={() => handleAction(settleMarketAction, market.id, 'YES')}>Settle YES</Button>
-                          <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white" disabled={isPending} onClick={() => handleAction(settleMarketAction, market.id, 'NO')}>Settle NO</Button>
+                        <div className="flex flex-col gap-2">
+                          <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" disabled={isPending} onClick={() => handleAction(settleMarketAction, market.id, 'YES')}>Settle {market.optionA}</Button>
+                          <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white" disabled={isPending} onClick={() => handleAction(settleMarketAction, market.id, 'NO')}>Settle {market.optionB}</Button>
                         </div>
                       )}
                     </TableCell>
