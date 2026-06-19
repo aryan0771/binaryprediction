@@ -58,43 +58,58 @@ export default function AdminClient({ markets, auditLogs }: { markets: any[], au
       <div className="space-y-8">
         
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create New Market</DialogTitle>
-              <DialogDescription>Define a new prediction market question and its options.</DialogDescription>
+          <DialogContent className="sm:max-w-lg bg-card/90 backdrop-blur-2xl border-border/50 shadow-2xl overflow-hidden">
+            <div className="absolute -top-20 -left-20 w-60 h-60 bg-green-500/10 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute -bottom-20 -right-20 w-60 h-60 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+
+            <DialogHeader className="relative z-10">
+              <DialogTitle className="text-2xl font-bold tracking-tight">Create New Market</DialogTitle>
+              <DialogDescription>Define a new prediction market question and its dynamic options.</DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleCreateMarket} className="space-y-4">
+            <form onSubmit={handleCreateMarket} className="space-y-6 relative z-10 mt-2">
               <div className="space-y-2">
-                <Label htmlFor="question">Market Question</Label>
-                <Input id="question" name="question" placeholder="Will X happen?" required />
+                <Label htmlFor="question" className="text-muted-foreground font-semibold">Market Question</Label>
+                <Input id="question" name="question" placeholder="e.g. Will SpaceX reach Mars by 2030?" required className="bg-background/50 shadow-inner border-border/50 focus-visible:ring-primary/50 h-10" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Input id="category" name="category" placeholder="e.g., Cricket, Finance, Politics" />
+                <Label htmlFor="category" className="text-muted-foreground font-semibold">Category</Label>
+                <Input id="category" name="category" placeholder="e.g., Space, Finance, Politics" className="bg-background/50 shadow-inner border-border/50 focus-visible:ring-primary/50" />
               </div>
-              <div className="space-y-2">
-                <Label>Market Options (Max 4)</Label>
-                {options.map((opt, i) => (
-                  <div key={i} className="flex gap-2">
-                    <Input 
-                      value={opt} 
-                      onChange={(e) => {
-                        const newOpts = [...options];
-                        newOpts[i] = e.target.value;
-                        setOptions(newOpts);
-                      }} 
-                      required 
-                    />
-                    {options.length > 2 && (
-                      <Button type="button" variant="outline" onClick={() => setOptions(options.filter((_, idx) => idx !== i))}>X</Button>
-                    )}
-                  </div>
-                ))}
+              
+              <div className="space-y-3 p-4 rounded-xl bg-muted/20 border border-border/50 shadow-inner">
+                <Label className="text-muted-foreground font-semibold">Market Options (Min 2, Max 4)</Label>
+                <div className="flex flex-col gap-3 mt-2">
+                  {options.map((opt, i) => (
+                    <div key={i} className="flex gap-2 items-center">
+                      <span className="text-xs font-mono text-muted-foreground w-4">{i+1}.</span>
+                      <Input 
+                        value={opt} 
+                        onChange={(e) => {
+                          const newOpts = [...options];
+                          newOpts[i] = e.target.value;
+                          setOptions(newOpts);
+                        }} 
+                        required
+                        className="bg-background/80 shadow-sm"
+                      />
+                      {options.length > 2 && (
+                        <Button type="button" variant="ghost" size="icon" className="text-red-500/70 hover:text-red-500 hover:bg-red-500/10 shrink-0" onClick={() => setOptions(options.filter((_, idx) => idx !== i))}>
+                          ✕
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
                 {options.length < 4 && (
-                  <Button type="button" variant="secondary" className="w-full mt-2" onClick={() => setOptions([...options, `Option ${options.length + 1}`])}>+ Add Option</Button>
+                  <Button type="button" variant="secondary" className="w-full mt-4 border-dashed border-2 bg-transparent hover:bg-muted/50 text-muted-foreground shadow-sm" onClick={() => setOptions([...options, `Option ${options.length + 1}`])}>
+                    + Add Another Option
+                  </Button>
                 )}
               </div>
-              <Button type="submit" className="w-full" disabled={isPending}>Create Market</Button>
+              
+              <Button type="submit" className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg shadow-green-500/20 h-12 text-lg font-medium transition-all active:scale-95 mt-4" disabled={isPending}>
+                {isPending ? 'Deploying...' : 'Deploy Market'}
+              </Button>
             </form>
           </DialogContent>
         </Dialog>

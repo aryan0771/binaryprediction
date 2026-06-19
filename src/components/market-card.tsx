@@ -110,40 +110,51 @@ export default function MarketCard({ market, isLoggedIn }: { market: any, isLogg
                   </Button>
                 ))}
               </div>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Place Prediction</DialogTitle>
+              <DialogContent className="sm:max-w-md bg-card/90 backdrop-blur-2xl border-border/50 shadow-2xl overflow-hidden">
+                {/* Background glow */}
+                <div className="absolute -top-20 -right-20 w-60 h-60 bg-blue-500/20 rounded-full blur-[100px] pointer-events-none" />
+                <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-purple-500/20 rounded-full blur-[100px] pointer-events-none" />
+                
+                <DialogHeader className="relative z-10">
+                  <DialogTitle className="text-2xl font-bold tracking-tight">Place Prediction</DialogTitle>
                   <DialogDescription>
-                    Enter the amount of diamonds you want to bet on this outcome.
+                    Enter the amount of diamonds you want to wager on this outcome.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="flex flex-col gap-1 text-sm font-medium">
-                    <div className="flex justify-between">
-                      <span>Selected: <span className="font-bold">{selectedOption}</span></span>
-                      <span>Potential Payout: <span className="text-blue-500">♦ {(parsedBetAmount * prospectiveMult).toFixed(0)}</span></span>
+                <div className="grid gap-6 py-4 relative z-10">
+                  <div className="flex flex-col gap-2 text-sm font-medium p-4 rounded-xl bg-muted/30 border border-border/50 shadow-inner">
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Selected Option:</span>
+                      <span className="font-bold px-3 py-1 bg-primary/10 text-primary rounded-md border border-primary/20">{selectedOption}</span>
+                    </div>
+                    <div className="flex justify-between items-center mt-2">
+                      <span className="text-muted-foreground">Potential Payout:</span>
+                      <span className="text-2xl font-bold text-green-500 flex items-center gap-1 drop-shadow-sm">
+                        <span className="text-green-600/80 text-xl">♦</span> {(parsedBetAmount * prospectiveMult).toFixed(0)}
+                      </span>
                     </div>
                     {parsedBetAmount > 0 && (
-                      <div className="text-right text-xs text-muted-foreground">
-                        Pool multiplier adjusts to {prospectiveMult.toFixed(2)}x
+                      <div className="text-right text-xs text-muted-foreground/80 mt-1 font-mono">
+                        ~ {prospectiveMult.toFixed(2)}x dynamic pool multiplier
                       </div>
                     )}
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="betAmount">Amount (♦)</Label>
+                  <div className="space-y-2 relative z-10">
+                    <Label htmlFor="betAmount" className="text-muted-foreground font-semibold">Amount to Wager (♦)</Label>
                     <Input 
                       id="betAmount" 
                       type="number" 
                       value={betAmount} 
                       onChange={(e) => setBetAmount(e.target.value)} 
                       placeholder="e.g. 100" 
-                      min={1} 
+                      min={1}
+                      className="text-lg bg-background/50 h-12 font-mono shadow-inner border-border/50 focus-visible:ring-primary/50"
                     />
                   </div>
                 </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsOpen(false)} disabled={isPending}>Cancel</Button>
-                  <Button onClick={() => handleBet()} disabled={!betAmount || isPending || parseInt(betAmount) <= 0}>
+                <DialogFooter className="relative z-10">
+                  <Button variant="ghost" onClick={() => setIsOpen(false)} disabled={isPending}>Cancel</Button>
+                  <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/20 transition-all active:scale-95" onClick={() => handleBet()} disabled={!betAmount || isPending || parseInt(betAmount) <= 0}>
                     {isPending ? 'Confirming...' : 'Confirm Bet'}
                   </Button>
                 </DialogFooter>

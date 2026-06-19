@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
 import { auth } from "@/auth";
+import { logoutAction } from "@/actions/auth";
 import Image from "next/image";
 import {
   DropdownMenu,
@@ -78,7 +79,7 @@ export default async function RootLayout({
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem>
-                            <form action="/api/auth/signout" method="POST" className="w-full">
+                            <form action={logoutAction} className="w-full">
                               <button className="flex items-center w-full text-red-400 cursor-pointer">
                                 <LogOut className="mr-2 h-4 w-4" />
                                 <span>Logout</span>
