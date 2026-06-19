@@ -84,3 +84,34 @@ export async function registerAction(prevState: any, formData: FormData) {
 export async function logoutAction() {
   await signOut({ redirect: true, redirectTo: '/login' });
 }
+
+const changePasswordSchema = z.object({
+  oldPassword: z.string().min(1, 'Old password is required'),
+  newPassword: z.string().min(6, 'New password must be at least 6 characters'),
+});
+
+export async function changePasswordAction(prevState: any, formData: FormData) {
+  const { auth } = await import('@/auth');
+  const session = await auth();
+  if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
+
+  const rawData = Object.fromEntries(formData.entries());
+  const parsed = changePasswordSchema.safeParse(rawData);
+  if (!parsed.success) {
+    return { success: false, error: 'Invalid input provided for passwords' };
+  }
+
+  const { oldPassword, newPassword } = parsed.data;
+  const userId = parseInt(session.user.id);
+
+  const [user] = await db.select().from(users).where(eq(users.id, userId));
+  if (!user) return { success: false, error: 'User not found' };
+
+  const passwordsMatch = await bcrypt.compare(oldPassword, user.passwordHash);
+  if (!passwordsMatch) return { success: false, error: 'Incorrect old password' };
+
+  const newHash = await bcrypt.hash(newPassword, 10);
+  await db.update(users).set({ passwordHash: newHash }).where(eq(users.id, userId));
+
+  return { success: true, error: null };
+}

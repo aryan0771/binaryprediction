@@ -7,10 +7,18 @@ const { auth } = NextAuth(authConfig)
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const isApiAuthRoute = req.nextUrl.pathname.startsWith('/api/auth');
-  const isPublicRoute = req.nextUrl.pathname === '/login' || req.nextUrl.pathname === '/register';
+  const isAuthRoute = req.nextUrl.pathname === '/login' || req.nextUrl.pathname === '/register';
+  const isPublicRoute = req.nextUrl.pathname === '/';
   const isAdminRoute = req.nextUrl.pathname.startsWith('/admin');
 
   if (isApiAuthRoute) {
+    return NextResponse.next();
+  }
+
+  if (isAuthRoute) {
+    if (isLoggedIn) {
+      return NextResponse.redirect(new URL('/dashboard', req.nextUrl));
+    }
     return NextResponse.next();
   }
 
@@ -18,12 +26,8 @@ export default auth((req) => {
     return NextResponse.redirect(new URL('/login', req.nextUrl));
   }
 
-  if (isLoggedIn && isPublicRoute) {
-    return NextResponse.redirect(new URL('/', req.nextUrl));
-  }
-
   if (isAdminRoute && req.auth?.user?.role !== 'ADMIN') {
-    return NextResponse.redirect(new URL('/', req.nextUrl));
+    return NextResponse.redirect(new URL('/dashboard', req.nextUrl));
   }
 
   return NextResponse.next();

@@ -4,6 +4,18 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
 import { auth } from "@/auth";
+import Image from "next/image";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuGroup,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { User, List, Wallet, LogOut, Settings } from "lucide-react";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -26,16 +38,58 @@ export default async function RootLayout({
           <div className="min-h-screen flex flex-col">
             <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
               <div className="container flex h-14 items-center justify-between">
-                <div className="font-bold text-xl tracking-tight bg-gradient-to-r from-blue-500 to-teal-400 bg-clip-text text-transparent">
-                  Predictify
-                </div>
+                <a href={session ? "/dashboard" : "/"} className="flex items-center gap-2 ml-2 hover:opacity-80 transition-opacity">
+                  <Image src="/logo.png" alt="Predictify Logo" width={48} height={48} className="object-contain w-10 h-10 sm:w-8 sm:h-8" />
+                  <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-blue-500 to-teal-400 bg-clip-text text-transparent hidden sm:inline-block">
+                    Predictify
+                  </span>
+                </a>
                 <nav className="flex items-center gap-4">
                   {session ? (
                     <>
-                      <span className="text-sm text-muted-foreground">{session.user?.email}</span>
-                      <form action="/api/auth/signout" method="POST">
-                        <button className="text-sm font-medium hover:underline">Logout</button>
-                      </form>
+                      <a href="/dashboard" className="text-sm font-medium hover:text-blue-400 transition-colors mr-2 hidden sm:block">Dashboard</a>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger className="focus:outline-none">
+                          <Avatar className="h-8 w-8 bg-blue-600/20 text-blue-500 hover:bg-blue-600/30 transition-colors">
+                            <AvatarFallback>
+                              <User className="h-4 w-4" />
+                            </AvatarFallback>
+                          </Avatar>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                          <DropdownMenuGroup>
+                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                          </DropdownMenuGroup>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem asChild>
+                            <a href="/dashboard/profile" className="cursor-pointer flex items-center w-full">
+                              <Settings className="mr-2 h-4 w-4" />
+                              <span>Profile Settings</span>
+                            </a>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <a href="/dashboard/wallet" className="cursor-pointer flex items-center w-full">
+                              <Wallet className="mr-2 h-4 w-4" />
+                              <span>Wallet Ledger</span>
+                            </a>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild>
+                            <a href="/dashboard/bids" className="cursor-pointer flex items-center w-full">
+                              <List className="mr-2 h-4 w-4" />
+                              <span>Bid History</span>
+                            </a>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem asChild>
+                            <form action="/api/auth/signout" method="POST" className="w-full">
+                              <button className="flex items-center w-full text-red-400 cursor-pointer">
+                                <LogOut className="mr-2 h-4 w-4" />
+                                <span>Logout</span>
+                              </button>
+                            </form>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </>
                   ) : (
                     <a href="/login" className="text-sm font-medium hover:underline">Login</a>
