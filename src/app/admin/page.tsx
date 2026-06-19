@@ -1,10 +1,10 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
-import { users, markets, bets, transactions, auditLogs } from "@/db/schema";
-import { desc, eq, sql } from "drizzle-orm";
+import { users, markets, bets, auditLogs } from "@/db/schema";
+import { desc, sql } from "drizzle-orm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import AdminClient from "./admin-client";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default async function AdminDashboard() {
   const session = await auth();
@@ -19,20 +19,14 @@ export default async function AdminDashboard() {
   const totalBets = await db.select({ count: sql<number>`count(*)` }).from(bets);
   
   // Fetch lists
-  const recentMarkets = await db.query.markets.findMany({
-    orderBy: [desc(markets.createdAt)],
-    limit: 10,
-    with: { pools: true }
-  });
-
   const recentAudits = await db.query.auditLogs.findMany({
     orderBy: [desc(auditLogs.createdAt)],
     limit: 10,
   });
 
   return (
-    <div className="container mx-auto p-4 md:p-8 flex flex-col gap-8">
-      <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+    <div className="flex flex-col gap-8">
+      <h1 className="text-3xl font-bold tracking-tight">Admin Overview</h1>
       
       <section className="grid gap-4 md:grid-cols-3">
         <Card>
@@ -60,8 +54,42 @@ export default async function AdminDashboard() {
           </CardContent>
         </Card>
       </section>
-
-      <AdminClient markets={recentMarkets} auditLogs={recentAudits} />
+      <section className="mt-8">
+        <h2 className="text-2xl font-semibold mb-4">Recent Audit Logs</h2>
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Time</TableHead>
+                  <TableHead>Admin ID</TableHead>
+                  <TableHead>Action</TableHead>
+                  <TableHead>Entity</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {recentAudits.map(log => (
+                  <TableRow key={log.id}>
+                    <TableCell className="text-muted-foreground whitespace-nowrap">
+                      {new Intl.DateTimeFormat('en-US', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(log.createdAt))}
+                    </TableCell>
+                    <TableCell className="font-mono">#{log.adminId}</TableCell>
+                    <TableCell className="font-semibold">{log.action}</TableCell>
+                    <TableCell>{log.entityType} #{log.entityId}</TableCell>
+                  </TableRow>
+                ))}
+                {recentAudits.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                      No audit logs found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </section>
     </div>
   );
 }

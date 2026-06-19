@@ -43,7 +43,7 @@ export default function AdminClient({ markets, auditLogs }: { markets: any[], au
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-2">
+    <div className="grid gap-8">
       <div className="space-y-8">
         <Card>
           <CardHeader>
@@ -111,33 +111,6 @@ export default function AdminClient({ markets, auditLogs }: { markets: any[], au
         </Card>
       </div>
 
-      <div>
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Audit Logs</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Action</TableHead>
-                  <TableHead>Entity</TableHead>
-                  <TableHead>Time</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {auditLogs.map(log => (
-                  <TableRow key={log.id}>
-                    <TableCell className="font-medium">{log.action}</TableCell>
-                    <TableCell>{log.entityType} #{log.entityId}</TableCell>
-                    <TableCell className="text-muted-foreground text-xs">{new Intl.DateTimeFormat('en-US', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(log.createdAt))}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }
