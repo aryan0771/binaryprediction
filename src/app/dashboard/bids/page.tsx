@@ -48,8 +48,8 @@ export default async function BidHistoryPage() {
                       {market?.question || `Market #${bet.marketId}`}
                     </TableCell>
                     <TableCell>
-                      <span className={`font-bold ${bet.option === 'YES' ? 'text-green-500' : 'text-red-500'}`}>
-                        {bet.option === 'YES' ? market?.optionA || 'YES' : market?.optionB || 'NO'}
+                      <span className="font-bold text-primary">
+                        {bet.option}
                       </span>
                     </TableCell>
                     <TableCell>

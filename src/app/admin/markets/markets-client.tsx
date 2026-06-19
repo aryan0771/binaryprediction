@@ -14,6 +14,7 @@ import Link from 'next/link';
 export default function AdminClient({ markets, auditLogs }: { markets: any[], auditLogs: any[] }) {
   const [isPending, setIsPending] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [options, setOptions] = useState<string[]>(['YES', 'NO']);
 
   async function handleCreateMarket(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -21,10 +22,16 @@ export default function AdminClient({ markets, auditLogs }: { markets: any[], au
     const formData = new FormData(e.currentTarget);
     const question = formData.get('question') as string;
     const category = formData.get('category') as string || 'GENERAL';
-    const optionA = formData.get('optionA') as string || 'YES';
-    const optionB = formData.get('optionB') as string || 'NO';
     
-    const res = await createMarketAction(question, category, optionA, optionB);
+    // Ensure unique non-empty options
+    const finalOptions = Array.from(new Set(options.map(o => o.trim()))).filter(Boolean);
+    if (finalOptions.length < 2) {
+      toast.error('Must have at least 2 distinct options');
+      setIsPending(false);
+      return;
+    }
+
+    const res = await createMarketAction(question, category, finalOptions);
     if (res.success) {
       toast.success('Market created successfully');
       (e.target as HTMLFormElement).reset();
@@ -65,15 +72,27 @@ export default function AdminClient({ markets, auditLogs }: { markets: any[], au
                 <Label htmlFor="category">Category</Label>
                 <Input id="category" name="category" placeholder="e.g., Cricket, Finance, Politics" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="optionA">Option 1 Label</Label>
-                  <Input id="optionA" name="optionA" placeholder="YES" defaultValue="YES" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="optionB">Option 2 Label</Label>
-                  <Input id="optionB" name="optionB" placeholder="NO" defaultValue="NO" />
-                </div>
+              <div className="space-y-2">
+                <Label>Market Options (Max 4)</Label>
+                {options.map((opt, i) => (
+                  <div key={i} className="flex gap-2">
+                    <Input 
+                      value={opt} 
+                      onChange={(e) => {
+                        const newOpts = [...options];
+                        newOpts[i] = e.target.value;
+                        setOptions(newOpts);
+                      }} 
+                      required 
+                    />
+                    {options.length > 2 && (
+                      <Button type="button" variant="outline" onClick={() => setOptions(options.filter((_, idx) => idx !== i))}>X</Button>
+                    )}
+                  </div>
+                ))}
+                {options.length < 4 && (
+                  <Button type="button" variant="secondary" className="w-full mt-2" onClick={() => setOptions([...options, `Option ${options.length + 1}`])}>+ Add Option</Button>
+                )}
               </div>
               <Button type="submit" className="w-full" disabled={isPending}>Create Market</Button>
             </form>
@@ -111,8 +130,11 @@ export default function AdminClient({ markets, auditLogs }: { markets: any[], au
                       )}
                       {market.status === 'CLOSED' && (
                         <div className="flex flex-col gap-2">
-                          <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white" disabled={isPending} onClick={() => handleAction(settleMarketAction, market.id, 'YES')}>Settle {market.optionA}</Button>
-                          <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white" disabled={isPending} onClick={() => handleAction(settleMarketAction, market.id, 'NO')}>Settle {market.optionB}</Button>
+                          {market.options.map((opt: string) => (
+                            <Button key={opt} size="sm" variant="outline" className="hover:bg-primary hover:text-primary-foreground" disabled={isPending} onClick={() => handleAction(settleMarketAction, market.id, opt)}>
+                              Settle {opt}
+                            </Button>
+                          ))}
                         </div>
                       )}
                     </TableCell>

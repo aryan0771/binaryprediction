@@ -3,20 +3,20 @@ import { markets, marketPools, auditLogs } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
 export class MarketService {
-  static async createMarket(adminId: number, question: string, category: string = 'GENERAL', optionA: string = 'YES', optionB: string = 'NO') {
+  static async createMarket(adminId: number, question: string, category: string = 'GENERAL', options: string[] = ['YES', 'NO']) {
     return db.transaction(async (tx) => {
       const [newMarket] = await tx.insert(markets).values({
         question,
         category,
-        optionA,
-        optionB,
+        options,
         status: 'OPEN',
       }).returning();
 
+      const initialPoolData = options.reduce((acc, opt) => ({ ...acc, [opt]: 0 }), {});
+
       await tx.insert(marketPools).values({
         marketId: newMarket.id,
-        yesPool: 0,
-        noPool: 0,
+        poolData: initialPoolData,
       });
 
       await tx.insert(auditLogs).values({

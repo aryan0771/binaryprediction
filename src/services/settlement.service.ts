@@ -4,7 +4,7 @@ import { eq, and, sql } from 'drizzle-orm';
 import { WalletService } from './wallet.service';
 
 export class SettlementService {
-  static async settleMarket(adminId: number, marketId: number, winningOption: 'YES' | 'NO') {
+  static async settleMarket(adminId: number, marketId: number, winningOption: string) {
     return db.transaction(async (tx) => {
       // 1. Lock the market
       const marketRes = await tx.execute(
@@ -27,11 +27,12 @@ export class SettlementService {
       
       if (poolRes.length === 0) throw new Error('Market pools not found');
       
-      const pools = poolRes[0] as any;
+      const pools = poolRes[0].pool_data as Record<string, number>;
       
       // 3. Calculate Pools & Commission
-      const winningPool = winningOption === 'YES' ? pools.yes_pool : pools.no_pool;
-      const losingPool = winningOption === 'YES' ? pools.no_pool : pools.yes_pool;
+      const totalPool = Object.values(pools).reduce((sum, val) => sum + val, 0);
+      const winningPool = pools[winningOption] || 0;
+      const losingPool = totalPool - winningPool;
       
       // 20% commission on the losing pool
       const commission = Math.floor(losingPool * 0.20);
@@ -74,8 +75,12 @@ export class SettlementService {
       }
 
       // Find losing bets to just update their payout to 0 (optional but good for tracking)
-      const losingOption = winningOption === 'YES' ? 'NO' : 'YES';
-      await tx.update(bets).set({ payout: 0 }).where(and(eq(bets.marketId, marketId), eq(bets.option, losingOption)));
+      const losingBets = await tx.query.bets.findMany({
+        where: and(eq(bets.marketId, marketId), sql`option != ${winningOption}`),
+      });
+      for (const bet of losingBets) {
+        await tx.update(bets).set({ payout: 0 }).where(eq(bets.id, bet.id));
+      }
 
       // 6. Update Market Status
       const [updatedMarket] = await tx.update(markets).set({

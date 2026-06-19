@@ -4,26 +4,24 @@ import { eq, sql } from 'drizzle-orm';
 import { WalletService } from './wallet.service';
 
 export class BetService {
-  static calculateMultipliers(yesPool: number, noPool: number) {
-    // If a pool is 0, the math might break or result in Infinity. Handle gracefully.
-    // If pool is 0, let's treat it as if a small amount is there, or just return basic 2.0 multiplier for starting point.
-    if (yesPool === 0 && noPool === 0) {
-      return { yesMultiplier: 1.8, noMultiplier: 1.8 };
+  static calculateMultipliers(poolData: Record<string, number>) {
+    const totalPool = Object.values(poolData).reduce((sum, val) => sum + val, 0);
+    const multipliers: Record<string, number> = {};
+
+    for (const [option, pool] of Object.entries(poolData)) {
+      if (totalPool === 0) {
+        multipliers[option] = 1.8;
+      } else {
+        const optionPoolSafe = pool === 0 ? 1 : pool;
+        const losingPool = totalPool - pool;
+        const mult = (pool + (losingPool * 0.8)) / optionPoolSafe;
+        multipliers[option] = Math.max(1.0, mult);
+      }
     }
-
-    const yesSafe = yesPool === 0 ? 1 : yesPool;
-    const noSafe = noPool === 0 ? 1 : noPool;
-
-    const yesMultiplier = (yesPool + (noPool * 0.8)) / yesSafe;
-    const noMultiplier = (noPool + (yesPool * 0.8)) / noSafe;
-
-    return {
-      yesMultiplier: Math.max(1.0, yesMultiplier),
-      noMultiplier: Math.max(1.0, noMultiplier),
-    };
+    return multipliers;
   }
 
-  static async placeBet(userId: number, marketId: number, option: 'YES' | 'NO', amount: number) {
+  static async placeBet(userId: number, marketId: number, option: string, amount: number) {
     if (amount <= 0) throw new Error('Bet amount must be greater than zero');
 
     return db.transaction(async (tx) => {
@@ -42,13 +40,13 @@ export class BetService {
 
       if (poolRes.length === 0) throw new Error('Market pool not found');
 
-      const pools = poolRes[0] as any;
-      const newYesPool = option === 'YES' ? pools.yes_pool + amount : pools.yes_pool;
-      const newNoPool = option === 'NO' ? pools.no_pool + amount : pools.no_pool;
+      const pools = poolRes[0].pool_data as Record<string, number>;
+      const newPoolData = { ...pools };
+      newPoolData[option] = (newPoolData[option] || 0) + amount;
 
       await tx
         .update(marketPools)
-        .set({ yesPool: newYesPool, noPool: newNoPool })
+        .set({ poolData: newPoolData })
         .where(eq(marketPools.marketId, marketId));
 
       // 3. Deduct from wallet
@@ -74,8 +72,8 @@ export class BetService {
       // Return updated state
       return {
         bet: newBet,
-        newPools: { yesPool: newYesPool, noPool: newNoPool },
-        multipliers: this.calculateMultipliers(newYesPool, newNoPool),
+        newPools: newPoolData,
+        multipliers: this.calculateMultipliers(newPoolData),
       };
     });
   }

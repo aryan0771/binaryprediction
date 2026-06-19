@@ -147,8 +147,8 @@ export default async function AdminBidsPage({ searchParams }: { searchParams: Pr
                     {market?.question || `Market #${bet.marketId}`}
                   </TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded text-xs font-bold ${bet.option === 'YES' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
-                      {bet.option === 'YES' ? market?.optionA || 'YES' : market?.optionB || 'NO'}
+                    <span className="px-2 py-1 rounded text-xs font-bold bg-primary/10 text-primary">
+                      {bet.option}
                     </span>
                   </TableCell>
                   <TableCell className="text-right font-mono text-blue-400 font-bold">

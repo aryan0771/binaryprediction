@@ -15,8 +15,7 @@ export const users = pgTable('users', {
 export const markets = pgTable('markets', {
   id: serial('id').primaryKey(),
   question: text('question').notNull(),
-  optionA: text('option_a').notNull().default('YES'),
-  optionB: text('option_b').notNull().default('NO'),
+  options: json('options').$type<string[]>().notNull().default(['YES', 'NO']),
   category: text('category').notNull().default('GENERAL'),
   status: text('status').notNull().default('OPEN'), // 'OPEN' | 'CLOSED' | 'SETTLED'
   winningOption: text('winning_option'), // 'YES' | 'NO' | null
@@ -28,8 +27,7 @@ export const markets = pgTable('markets', {
 export const marketPools = pgTable('market_pools', {
   id: serial('id').primaryKey(),
   marketId: integer('market_id').notNull().references(() => markets.id),
-  yesPool: integer('yes_pool').notNull().default(0),
-  noPool: integer('no_pool').notNull().default(0),
+  poolData: json('pool_data').$type<Record<string, number>>().notNull().default({ 'YES': 0, 'NO': 0 }),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
 

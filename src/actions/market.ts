@@ -13,11 +13,11 @@ import { z } from 'zod';
 
 const betSchema = z.object({
   marketId: z.coerce.number(),
-  option: z.enum(['YES', 'NO']),
+  option: z.string(),
   amount: z.coerce.number().positive(),
 });
 
-export async function placeBetAction(data: { marketId: number, option: 'YES'|'NO', amount: number }) {
+export async function placeBetAction(data: { marketId: number, option: string, amount: number }) {
   const session = await auth();
   if (!session?.user?.id) throw new Error('Unauthorized');
   
@@ -35,13 +35,13 @@ export async function placeBetAction(data: { marketId: number, option: 'YES'|'NO
   }
 }
 
-export async function createMarketAction(question: string, category: string, optionA: string, optionB: string) {
+export async function createMarketAction(question: string, category: string, options: string[]) {
   const session = await auth();
   if (session?.user?.role !== 'ADMIN') throw new Error('Unauthorized');
 
   try {
     const adminId = parseInt(session.user.id as string);
-    const result = await MarketService.createMarket(adminId, question, category, optionA, optionB);
+    const result = await MarketService.createMarket(adminId, question, category, options);
     revalidatePath('/admin');
     revalidatePath('/');
     return { success: true, data: result };
@@ -65,7 +65,7 @@ export async function closeMarketAction(marketId: number) {
   }
 }
 
-export async function settleMarketAction(marketId: number, winningOption: 'YES' | 'NO') {
+export async function settleMarketAction(marketId: number, winningOption: string) {
   const session = await auth();
   if (session?.user?.role !== 'ADMIN') throw new Error('Unauthorized');
 

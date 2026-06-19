@@ -73,7 +73,7 @@ export default async function DashboardPage() {
                   <div>
                     <div className="font-medium">{market?.question || `Market #${bet.marketId}`}</div>
                     <div className="text-sm text-muted-foreground">
-                      Predicted: <strong className={bet.option === 'YES' ? 'text-green-500' : 'text-red-500'}>{bet.option === 'YES' ? market?.optionA || 'YES' : market?.optionB || 'NO'}</strong>
+                      Predicted: <strong className="text-primary">{bet.option}</strong>
                     </div>
                   </div>
                   <div className="text-right">
